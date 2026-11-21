@@ -3,6 +3,8 @@
 A billing support console and invoice explainer, built on Supabase Postgres,
 for a billing system shaped like Supabase's own.
 
+**Live: [supabase-billing-desk.vercel.app](https://supabase-billing-desk.vercel.app)**
+
 I built it to answer one question about myself: can I do billing support for
 technical customers, when I have not held that job? The honest way to answer
 was to do the work. So this repository bills twenty invented organizations by
@@ -151,4 +153,4 @@ api/keep-warm.js                             the daily read that keeps the proje
 |---|---|
 | Database, invoice engine, playbooks | done, 90 tests passing |
 | Console | done, checked in the browser against the local database, light and dark, desktop and phone |
-| Hosted on a Supabase project | not yet |
+| Hosted | on a Supabase project (Postgres 17) and Vercel since 21 November 2026. The hosted database returns the same results as the local one, and a write through the public API is refused |
