@@ -134,7 +134,7 @@ create table demo_settings (
 
 insert into demo_settings values
   ('demo_now', '2026-11-20 09:00:00+00', 'demo',
-   'The date the demo treats as today. A fixed clock keeps every "days overdue" figure and every test stable.'),
+   'The moment the demo treats as now. The seed sets it to 20 November 2026; advance_demo_clock() then moves it, and every date in the data with it, to 09:00 UTC on the real day.'),
   ('overdue_pause_days', '14', 'assumed',
    'Days after the due date before an unpaid invoice pauses projects. Supabase documents the pause, not the number of days.'),
   ('first_response_hours_urgent', '1',  'assumed', 'First reply target for Urgent tickets. Supabase publishes no target.'),

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { supabase } from '../supabase';
 import { useQuery } from '../api';
-import { day, duration, titleCase, usd } from '../format';
+import { dateOnly, duration, titleCase, usd } from '../format';
 import { Badge, ErrorNote, SkeletonRows } from '../components/ui';
 import type { PlaybookStat, SpendSignal, WeeklyCount } from '../types';
 
@@ -24,7 +24,7 @@ function Sparkline({ weeks, counts, label }: { weeks: string[]; counts: number[]
         return (
           <rect key={weeks[i]} x={i * (bar + gap)} y={height - h} width={bar} height={h} rx={1.5}
                 className={i >= weeks.length - RECENT_WEEKS ? '' : 'quiet'}>
-            <title>{`Week of ${day(weeks[i])}: ${n} ticket${n === 1 ? '' : 's'}`}</title>
+            <title>{`Week from ${dateOnly(weeks[i])}: ${n} ticket${n === 1 ? '' : 's'}`}</title>
           </rect>
         );
       })}

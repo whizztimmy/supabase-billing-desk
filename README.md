@@ -86,9 +86,26 @@ unpaid invoice pauses projects, and first-reply targets. Both live in the
 `demo_settings` table, marked `assumed`, and the About page lists them.
 
 Simplified: usage is billed as one monthly quantity where Supabase meters by
-the hour, every billing cycle starts on the 1st or the 10th, and the console
-is read-only. I do not know how Supabase's internal tools work beyond what its
+the hour, billing cycles are a fixed number of days, and the console is
+read-only. I do not know how Supabase's internal tools work beyond what its
 team has said in public, and nothing here claims to.
+
+## The demo clock
+
+The seed is written around one moment, 09:00 UTC on 20 November 2026. Left
+there, the demo would age: a visitor in January would read "today is 20
+November".
+
+So the demo has its own clock, and it follows the real date. Each night
+`advance_demo_clock()` moves that moment to 09:00 UTC today and moves every
+date in the data forward by the same number of days. Nothing changes relative
+to anything else: the urgent ticket is always 80 minutes old, the failed
+payment always ten days old. A test moves the clock 107 days, across a year
+end and a February, and checks that every diagnosis, total, age and trend
+comes out identical.
+
+In the console, times are shown in the viewer's own timezone, with the zone
+printed beside them.
 
 ## Running it
 
@@ -100,9 +117,9 @@ npm test
 ```
 
 `npm test` loads the migrations and the seed into [PGlite](https://pglite.dev),
-Postgres running inside the Node process, and runs 90 assertions written in
+Postgres running inside the Node process, and runs 105 assertions written in
 SQL: the billing rules against worked examples, the seeded invoices, every
-ticket's diagnosis, and the access rules.
+ticket's diagnosis, the access rules, and the demo clock.
 
 To run the console:
 
@@ -130,7 +147,8 @@ locally too. `scripts/local-api.mjs` is that stand-in.
    needed, and the service role key must never be given to the site.
 
 `api/keep-warm.js` reads from the database once a day through a Vercel Cron
-Job, so a free project does not pause for inactivity.
+Job, so a free project does not pause for inactivity. The demo clock is moved
+inside the database by pg_cron, which `0005_demo_clock.sql` schedules.
 
 ## Layout
 
@@ -139,8 +157,9 @@ supabase/migrations/0001_catalog.sql         the price list, with sources
 supabase/migrations/0002_accounts.sql        customers, usage, invoices, payments, tickets
 supabase/migrations/0003_invoice_engine.sql  quote, rebuild and explain an invoice
 supabase/migrations/0004_playbooks.sql       sixteen playbooks and the inbox
+supabase/migrations/0005_demo_clock.sql      the clock that follows the real date
 supabase/seed.sql                            the synthetic organizations and tickets
-tests/                                       90 assertions, in SQL
+tests/                                       105 assertions, in SQL
 scripts/test.mjs                             runs everything in PGlite
 scripts/local-api.mjs                        the local stand-in for Supabase's API
 web/                                         the console: Vite, React, TypeScript
@@ -151,6 +170,6 @@ api/keep-warm.js                             the daily read that keeps the proje
 
 | | |
 |---|---|
-| Database, invoice engine, playbooks | done, 90 tests passing |
+| Database, invoice engine, playbooks | done, 105 tests passing |
 | Console | done, checked in the browser against the local database, light and dark, desktop and phone |
 | Hosted | on a Supabase project (Postgres 17) and Vercel since 21 November 2026. The hosted database returns the same results as the local one, and a write through the public API is refused |

@@ -81,7 +81,7 @@ select expect_true('An escalation note exists for every escalated ticket and for
   (select bool_and((escalation_note(q.id) is not null) = (q.escalate_to is not null)) from ticket_queue q));
 
 select expect_true('The duplicate-charge note carries the invoice number and the amount to reverse',
-  (select escalation_note(t.id) ~ 'SB-2611-[0-9]{4}' and escalation_note(t.id) like '%$50.00%'
+  (select escalation_note(t.id) ~ 'SB-[0-9]{5}' and escalation_note(t.id) like '%$50.00%'
    from tickets t where t.org_id = 'pixel-forge'));
 
 select expect_true('Every drafted reply greets the requester by first name',

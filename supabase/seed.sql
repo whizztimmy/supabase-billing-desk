@@ -64,7 +64,7 @@ begin
   select coalesce(sum(amount), 0) into v_total from invoice_lines where invoice_id = v_id;
   update invoices
   set total = v_total,
-      number = 'SB-' || to_char(p_issued, 'YYMM') || '-' || lpad(v_id::text, 4, '0'),
+      number = 'SB-' || lpad(v_id::text, 5, '0'),
       paid_at = case when p_status = 'paid' then p_issued + interval '2 minutes' end
   where id = v_id;
 
@@ -112,7 +112,9 @@ insert into orgs (id, name, owner_name, billing_email, country, plan, spend_cap,
   ('umbra-video',     'Umbra Video',         'Lucia Romano',    'lucia@umbravideo.example',      'IT', 'pro',  true,  null, 0,    null,           '2025-11-10'),
   ('ember-labs',      'Ember Labs',          'Viktor Hale',     'viktor@emberlabs.example',      'US', 'pro',  false, null, 0,    null,           '2026-11-14');
 
-insert into payment_methods (org_id, brand, last4, exp_month, exp_year, country) values
+insert into payment_methods (org_id, brand, last4, expires_on, country)
+select v.org_id, v.brand, v.last4, make_date(v.exp_year, v.exp_month, 1), v.country
+from (values
   ('lumen-health',    'Visa',       '4242', 8,  2028, 'GB'),
   ('kestrel-maps',    'Mastercard', '5510', 3,  2029, 'SE'),
   ('baobab-pay',      'Visa',       '4071', 6,  2028, 'NG'),
@@ -131,7 +133,8 @@ insert into payment_methods (org_id, brand, last4, exp_month, exp_year, country)
   ('prairie-cu',      'Visa',       '2468', 12, 2028, 'CA'),
   ('saffron-ai',      'Visa',       '9090', 5,  2028, 'AE'),
   ('umbra-video',     'Mastercard', '7373', 8,  2027, 'IT'),
-  ('ember-labs',      'Visa',       '0019', 1,  2027, 'US');
+  ('ember-labs',      'Visa',       '0019', 1,  2027, 'US')
+) as v(org_id, brand, last4, exp_month, exp_year, country);
 
 -- ---------------------------------------------------------------------------
 -- Projects and a month of usage. Most cycles run 1 to 31 October. The

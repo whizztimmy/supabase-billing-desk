@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node scripts/test.mjs",
     "sql": "node --env-file=.env scripts/run-sql.mjs",
-    "db:setup": "node --env-file=.env scripts/run-sql.mjs supabase/migrations/0000_reset.sql supabase/migrations/0001_catalog.sql supabase/migrations/0002_accounts.sql supabase/migrations/0003_invoice_engine.sql supabase/migrations/0004_playbooks.sql supabase/seed.sql"
+    "db:setup": "node --env-file=.env scripts/run-sql.mjs supabase/migrations/0000_reset.sql supabase/migrations/0001_catalog.sql supabase/migrations/0002_accounts.sql supabase/migrations/0003_invoice_engine.sql supabase/migrations/0004_playbooks.sql supabase/migrations/0005_demo_clock.sql supabase/seed.sql supabase/advance.sql"
   },
   "dependencies": {
     "pg": "8.13.0"

@@ -38,7 +38,8 @@ export default function About() {
         <h2>What is simplified</h2>
         <ul>
           <li>Usage is billed as one monthly quantity. Supabase meters disk, storage and add-ons by the hour.</li>
-          <li>Every billing cycle starts on the 1st or the 10th of the month.</li>
+          <li>The demo has its own clock. It reads 09:00 UTC on today's date, and a nightly job moves every date in the data forward with it, so a ticket that was 80 minutes old yesterday is 80 minutes old today. Times are shown in your own timezone.</li>
+          <li>Billing cycles here are a fixed number of days. Supabase anchors each cycle to the day the organization was created.</li>
           <li>The console is read-only. Nothing here sends a reply, issues a credit or changes an account.</li>
           <li>I do not know how Supabase's internal tools work beyond what its team has said in public, and nothing here claims to.</li>
         </ul>

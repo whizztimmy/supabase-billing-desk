@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { supabase, usingLocalDatabase } from './supabase';
 import { useQuery } from './api';
-import { day } from './format';
+import { dayTime } from './format';
 import type { Setting } from './types';
 import Inbox from './pages/Inbox';
 import Ticket from './pages/Ticket';
@@ -13,8 +13,9 @@ import Playbooks from './pages/Playbooks';
 import Plan from './pages/Plan';
 import About from './pages/About';
 
-// The demo runs on a fixed date, stored in the database, so "3 days overdue"
-// means the same thing on every visit.
+// The demo has its own clock, stored in the database and moved to 09:00 UTC
+// on the real day each night, along with every date in the data. Ages are
+// measured against it, so "3 days overdue" means the same on every visit.
 const DemoNow = createContext<string | null>(null);
 export const useDemoNow = () => useContext(DemoNow);
 
@@ -105,7 +106,12 @@ export default function App() {
               <Link to="/about" className="chip" title="Every customer, card and ticket is invented. Prices and rules are Supabase's published ones.">
                 <span className="dot amber" aria-hidden="true" />Synthetic data
               </Link>
-              {demoNow && <span className="chip hide-narrow">Today is {day(demoNow)}</span>}
+              {demoNow && (
+                <span className="chip hide-narrow"
+                      title="The demo's clock is set to 09:00 UTC today, shown here in your timezone. Every date in the data moves forward with it each night, so each ticket stays the same age.">
+                  Demo time: {dayTime(demoNow)}
+                </span>
+              )}
               {usingLocalDatabase && <span className="chip hide-narrow">Local database</span>}
               <button type="button" className="btn" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>

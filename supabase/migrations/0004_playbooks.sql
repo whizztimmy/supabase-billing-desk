@@ -57,8 +57,8 @@ select t.id as ticket_id, t.subject, t.body, t.category, t.severity, t.status as
        coalesce(pa.succeeded_attempts, 0) as succeeded_attempts,
        pa.last_decline_code,
        pm.brand as card_brand, pm.last4 as card_last4, pm.country as card_country,
-       make_date(pm.exp_year, pm.exp_month, 1) as card_expires,
-       (make_date(pm.exp_year, pm.exp_month, 1) + interval '1 month') <= demo_now() as card_expired,
+       date_trunc('month', pm.expires_on)::date as card_expires,
+       (date_trunc('month', pm.expires_on) + interval '1 month') <= demo_now() as card_expired,
        pr.project_count, pr.paused_projects, pr.pause_reason
 from tickets t
 join orgs o on o.id = t.org_id
@@ -512,15 +512,15 @@ language sql stable security invoker set search_path = public, pg_catalog as $$
   from ticket_context c
   cross join lateral invoice_check(c.invoice_id) k
   cross join lateral (
+    -- The billing cycle runs for a month from the day the invoice was issued.
     select d.days_left,
-           round((select monthly_fee from plans where id = c.plan) * d.days_left / d.days_in_month, 2) as credit
+           round((select monthly_fee from plans where id = c.plan) * d.days_left / d.days_in_cycle, 2) as credit
     from (
-      select extract(day from date_trunc('month', demo_now()) + interval '1 month' - interval '1 day')::integer as days_in_month,
-             extract(day from date_trunc('month', demo_now()) + interval '1 month' - interval '1 day')::integer
-               - extract(day from demo_now())::integer as days_left
+      select greatest((c.issued_at + interval '1 month')::date - demo_now()::date, 0) as days_left,
+             (c.issued_at + interval '1 month')::date - c.issued_at::date as days_in_cycle
     ) d
   ) r
-  where c.ticket_id = p_ticket and c.category = 'Refund enquiry' and c.plan <> 'free'
+  where c.ticket_id = p_ticket and c.category = 'Refund enquiry' and c.plan <> 'free' and c.invoice_id is not null
     and k.matches and c.succeeded_attempts <= 1
     and not exists (select 1 from disputes d where d.invoice_id = c.invoice_id and d.status in ('needs_response', 'under_review'));
 $$;
@@ -639,9 +639,14 @@ group by p.id, p.title, p.sort;
 
 create view tickets_weekly
 with (security_invoker = true) as
-select date_trunc('week', t.created_at)::date as week_start, t.solved_by_playbook as playbook, count(*) as tickets
+-- Weeks are counted back from the demo's today, not by the calendar, so the
+-- same tickets fall in the same week whatever day the clock is on.
+select demo_now()::date - 7 * (w.weeks_ago + 1) as week_start, t.solved_by_playbook as playbook, count(*) as tickets
 from tickets t
-where t.status = 'solved' and t.solved_by_playbook is not null
+cross join lateral (
+  select floor(extract(epoch from demo_now() - t.created_at) / 604800)::integer as weeks_ago
+) w
+where t.status = 'solved' and t.solved_by_playbook is not null and w.weeks_ago < 12
 group by 1, 2;
 
 -- New organizations spending far beyond anything they have ever paid. Caught

@@ -4,11 +4,20 @@ const numberFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 5 }
 export const usd = (n: number | null | undefined) => (n === null || n === undefined ? '' : usdFormat.format(Number(n)));
 export const num = (n: number | null | undefined) => (n === null || n === undefined ? '' : numberFormat.format(Number(n)));
 
-const dayFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-const timeFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+// Moments are shown in the viewer's own timezone, which the browser knows
+// without any lookup: someone in Lagos reads West Africa Time, someone in
+// Berlin reads Central European Time. The zone is printed beside every time.
+const dayFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const timeFormat = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+});
+// A calendar date with no time, such as a usage period's first day, is the
+// same day everywhere. It must not shift when the viewer is west of UTC.
+const dateOnlyFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
 export const day = (iso: string | null | undefined) => (iso ? dayFormat.format(new Date(iso)) : '');
-export const dayTime = (iso: string | null | undefined) => (iso ? `${timeFormat.format(new Date(iso))} UTC` : '');
+export const dayTime = (iso: string | null | undefined) => (iso ? timeFormat.format(new Date(iso)) : '');
+export const dateOnly = (iso: string | null | undefined) => (iso ? dateOnlyFormat.format(new Date(iso)) : '');
 
 // 1.3 hours as "1h 18m", 42 hours as "1d 18h".
 export function duration(hours: number): string {

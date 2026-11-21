@@ -15,6 +15,7 @@ for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.sql') && !f.start
   await db.exec(fs.readFileSync(path.join(dir, f), 'utf8'));
 }
 await db.exec(fs.readFileSync(path.join(root, 'supabase/seed.sql'), 'utf8'));
+await db.exec('select advance_demo_clock()');
 
 const sql = process.argv[2];
 if (!sql) { console.error('Pass a query in quotes.'); process.exit(1); }

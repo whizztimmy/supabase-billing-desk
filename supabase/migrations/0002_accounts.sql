@@ -55,8 +55,9 @@ create table payment_methods (
   org_id     text    not null references orgs (id) on delete cascade,
   brand      text    not null,
   last4      text    not null check (last4 ~ '^[0-9]{4}$'),
-  exp_month  integer not null check (exp_month between 1 and 12),
-  exp_year   integer not null,
+  -- A card is valid to the end of a month. Stored as a date, not a month and a
+  -- year, so it moves with every other date when the demo clock advances.
+  expires_on date    not null,
   country    text    not null,                -- the country of the bank that issued the card
   is_active  boolean not null default true
 );

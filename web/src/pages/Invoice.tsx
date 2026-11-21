@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useQuery } from '../api';
-import { day, dayTime, titleCase, usd } from '../format';
+import { dateOnly, day, dayTime, titleCase, usd } from '../format';
 import { Badge, ErrorNote, SkeletonLines, Status, invoiceTone } from '../components/ui';
 import InvoiceLines from '../components/InvoiceLines';
 import type { Dispute, InvoiceLine, InvoiceOverview, PaymentAttempt } from '../types';
@@ -38,7 +38,7 @@ export default function Invoice() {
           <div>
             <h1 className="mono" style={{ fontSize: 18 }}>{inv.number}</h1>
             <p>
-              {inv.org_name} · usage from {day(inv.usage_period_start)} to {day(inv.usage_period_end)} on {titleCase(inv.usage_plan)}
+              {inv.org_name} · usage from {dateOnly(inv.usage_period_start)} to {dateOnly(inv.usage_period_end)} on {titleCase(inv.usage_plan)}
               {inv.fee_plan !== inv.usage_plan && <>, plan fee for {titleCase(inv.fee_plan)}</>}
               {inv.usage_plan === 'pro' && <> · spend cap {inv.spend_cap ? 'on' : 'off'}</>}
             </p>

@@ -28,6 +28,8 @@ async function loadDatabase() {
     await db.exec(fs.readFileSync(path.join(dir, f), 'utf8'));
   }
   await db.exec(fs.readFileSync(path.join(root, 'supabase/seed.sql'), 'utf8'));
+  // Bring the seed's dates up to today, as the nightly job does in production.
+  await db.exec('select advance_demo_clock()');
   await db.exec('set role anon');
   return db;
 }

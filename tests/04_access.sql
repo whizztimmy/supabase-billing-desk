@@ -6,6 +6,7 @@ do $$
 declare
   v_tickets integer; v_findings integer; v_lines integer;
   v_insert_denied boolean := false; v_update_denied boolean := false; v_delete_denied boolean := false;
+  v_clock_denied boolean := false;
 begin
   set role anon;
 
@@ -29,8 +30,14 @@ begin
   exception when insufficient_privilege then v_delete_denied := true;
   end;
 
+  begin
+    perform advance_demo_clock(date '2099-01-01');
+  exception when insufficient_privilege then v_clock_denied := true;
+  end;
+
   reset role;
 
+  perform expect_true('anon cannot move the demo clock', v_clock_denied);
   perform expect_true('anon can read the inbox', v_tickets > 0);
   perform expect_true('anon can run a diagnosis', v_findings > 0);
   perform expect_true('anon can use the invoice explainer', v_lines > 0);
